@@ -1,0 +1,1380 @@
+{
+  "name": "Bot Condomínio — WhatsApp",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "condominio-bot",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "b089e28e-2401-4ae5-b220-4ed82a1719d1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        944,
+        5536
+      ],
+      "webhookId": "condominio-bot"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "OK",
+        "options": {}
+      },
+      "id": "9dbcecb0-1448-4552-9117-7687cb55c852",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1168,
+        5408
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body    = $input.first().json.body ?? $input.first().json;\nconst data    = body.data    ?? body;\nconst key     = data.key     ?? body.key     ?? {};\nconst message = data.message ?? body.message ?? {};\n\nif (key.fromMe === true) return [];\nif ((key.remoteJid ?? '').includes('@g.us')) return [];\n\nconst from = (key.remoteJid ?? '')\n  .replace('@s.whatsapp.net', '')\n  .replace('@g.us', '');\n\nif (!from || from.length < 5) return [];\n\nconst texto    = (message.conversation ?? message.extendedTextMessage?.text ?? message.buttonsResponseMessage?.selectedDisplayText ?? message.listResponseMessage?.singleSelectReply?.selectedRowId ?? '').trim();\nconst buttonId = message.buttonsResponseMessage?.selectedButtonId ?? message.listResponseMessage?.singleSelectReply?.selectedRowId ?? null;\nconst instance = body.instance ?? data.instance ?? 'N8N-Portaria';\n\nreturn [{ json: { from, texto, buttonId, instance } }];"
+      },
+      "id": "64001352-9e55-48f5-87de-4d475d2c73ca",
+      "name": "Parsear Mensagem",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        5536
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://rcghqqwbwxbhrxjwutqu.supabase.co/rest/v1/moradores?telefone=eq.{{ $json.from }}&select=id,nome,apartamento,bloco",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZ2hxcXdid3hiaHJ4and1dHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzQ4MDUsImV4cCI6MjA5NDI1MDgwNX0.82ydARjHLvcXN5mp9u3JawDFT6l4oKdJov_ng6-lgMM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZ2hxcXdid3hiaHJ4and1dHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzQ4MDUsImV4cCI6MjA5NDI1MDgwNX0.82ydARjHLvcXN5mp9u3JawDFT6l4oKdJov_ng6-lgMM"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "adaa642d-a72e-4081-b7e1-55eca4785a89",
+      "name": "GET Morador",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1392,
+        5536
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://rcghqqwbwxbhrxjwutqu.supabase.co/rest/v1/sessoes?telefone=eq.{{ $('Parsear Mensagem').item.json.from }}&select=etapa,dados",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZ2hxcXdid3hiaHJ4and1dHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzQ4MDUsImV4cCI6MjA5NDI1MDgwNX0.82ydARjHLvcXN5mp9u3JawDFT6l4oKdJov_ng6-lgMM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZ2hxcXdid3hiaHJ4and1dHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzQ4MDUsImV4cCI6MjA5NDI1MDgwNX0.82ydARjHLvcXN5mp9u3JawDFT6l4oKdJov_ng6-lgMM"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "75b23ab7-d322-4a38-b25b-53c3b6239f71",
+      "name": "GET Sessao",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1616,
+        5536
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const p = $('Parsear Mensagem').item.json;\nlet moradores = [], sessoes = [];\ntry { const t = $('GET Morador').item.json.data ?? $('GET Morador').item.json; moradores = typeof t === 'string' ? JSON.parse(t) : (Array.isArray(t) ? t : []); } catch(e) { moradores = []; }\ntry { const t = $('GET Sessao').item.json.data  ?? $('GET Sessao').item.json;  sessoes   = typeof t === 'string' ? JSON.parse(t) : (Array.isArray(t) ? t : []); } catch(e) { sessoes   = []; }\nconst m = moradores[0] ?? null;\nconst s = sessoes[0]   ?? null;\nreturn [{ json: {\n  from:              p.from,\n  texto:             p.texto,\n  buttonId:          p.buttonId,\n  instance:          p.instance,\n  moradorEncontrado: m !== null,\n  moradorId:         m?.id          ?? null,\n  moradorNome:       m?.nome        ?? null,\n  moradorApto:       m?.apartamento ?? null,\n  moradorBloco:      m?.bloco       ?? null,\n  sessaoEtapa:       s?.etapa       ?? null,\n  sessaoDados:       s?.dados       ?? {}\n} }];"
+      },
+      "id": "1a6e832b-1256-4b55-82db-96d6f940152d",
+      "name": "Consolidar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1824,
+        5536
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.moradorEncontrado }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "38f8ed44-d5bb-4fbb-b2b6-b16c17c7a891",
+      "name": "Morador existe?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2048,
+        5536
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json;\nconst etapa = d.sessaoEtapa, texto = d.texto ?? '', dados = d.sessaoDados ?? {};\nlet nd = { ...dados }, prox = null, resp = '', ok = false;\n\nif (!etapa) {\n  resp = 'Olá! 👋 Não encontrei seu cadastro.\\n\\nVamos fazer seu registro rapidinho! 😊\\n\\nQual é o seu *nome completo*?';\n  prox = 'aguardando_nome'; nd = {};\n} else if (etapa === 'aguardando_nome') {\n  if (texto.length < 3) { resp = '⚠️ Nome muito curto. Digite seu nome completo.'; prox = 'aguardando_nome'; }\n  else { nd.nome = texto; resp = `Ótimo, *${texto}*! 🏠\\n\\nQual é o número do seu *apartamento*?`; prox = 'aguardando_apto'; }\n} else if (etapa === 'aguardando_apto') {\n  if (texto.length < 1) { resp = '⚠️ Informe o número do apartamento.'; prox = 'aguardando_apto'; }\n  else { nd.apto = texto; resp = `Perfeito! 🏢\\n\\nQual é o *bloco*?\\n_(Ex: A, B — ou \"Único\" se não houver)_`; prox = 'aguardando_bloco'; }\n} else if (etapa === 'aguardando_bloco') {\n  nd.bloco = texto; ok = true;\n  resp = `✅ *Cadastro realizado!*\\n\\n👤 ${nd.nome}\\n🏠 Ap. ${nd.apto} - Bloco ${nd.bloco}\\n\\nBem-vindo(a)! 🎉\\n\\nEnvie qualquer mensagem para o menu.`;\n}\n\nreturn [{ json: { from: d.from, instance: d.instance, resp, prox, nd: JSON.stringify(nd), ok, nome: nd.nome ?? '', apto: nd.apto ?? '', bloco: nd.bloco ?? '' } }];"
+      },
+      "id": "9d39174f-d316-4f7c-b2c4-7fd8b0410d89",
+      "name": "Lógica Cadastro",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2272,
+        5728
+      ]
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "=https://rcghqqwbwxbhrxjwutqu.supabase.co/rest/v1/sessoes?telefone=eq.{{ $json.from }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZ2hxcXdid3hiaHJ4and1dHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzQ4MDUsImV4cCI6MjA5NDI1MDgwNX0.82ydARjHLvcXN5mp9u3JawDFT6l4oKdJov_ng6-lgMM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZ2hxcXdid3hiaHJ4and1dHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzQ4MDUsImV4cCI6MjA5NDI1MDgwNX0.82ydARjHLvcXN5mp9u3JawDFT6l4oKdJov_ng6-lgMM"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "eb38a4f7-10fe-455f-a973-55ff6969fda2",
+      "name": "DELETE Sessao",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2496,
+        5728
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "c2",
+              "leftValue": "={{ $('Lógica Cadastro').item.json.ok }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "827e74d6-ccdb-4b62-8e54-a896964f5dd8",
+      "name": "Cadastro OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2704,
+        5728
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://rcghqqwbwxbhrxjwutqu.supabase.co/rest/v1/sessoes",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZ2hxcXdid3hiaHJ4and1dHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzQ4MDUsImV4cCI6MjA5NDI1MDgwNX0.82ydARjHLvcXN5mp9u3JawDFT6l4oKdJov_ng6-lgMM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZ2hxcXdid3hiaHJ4and1dHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzQ4MDUsImV4cCI6MjA5NDI1MDgwNX0.82ydARjHLvcXN5mp9u3JawDFT6l4oKdJov_ng6-lgMM"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ telefone: $('Lógica Cadastro').item.json.from, etapa: $('Lógica Cadastro').item.json.prox, dados: JSON.parse($('Lógica Cadastro').item.json.nd), updated_at: new Date().toISOString() }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "a37ee5de-a861-461f-b928-d8464b4afad8",
+      "name": "INSERT Sessao",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2928,
+        5616
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://rcghqqwbwxbhrxjwutqu.supabase.co/rest/v1/moradores",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZ2hxcXdid3hiaHJ4and1dHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzQ4MDUsImV4cCI6MjA5NDI1MDgwNX0.82ydARjHLvcXN5mp9u3JawDFT6l4oKdJov_ng6-lgMM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZ2hxcXdid3hiaHJ4and1dHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzQ4MDUsImV4cCI6MjA5NDI1MDgwNX0.82ydARjHLvcXN5mp9u3JawDFT6l4oKdJov_ng6-lgMM"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "nome",
+              "value": "={{ $('Lógica Cadastro').item.json.nome  }}"
+            },
+            {
+              "name": "telefone",
+              "value": "={{ $('Lógica Cadastro').item.json.from  }}"
+            },
+            {
+              "name": "apartamento",
+              "value": "={{ $('Lógica Cadastro').item.json.apto  }}"
+            },
+            {
+              "name": "bloco",
+              "value": "={{ $('Lógica Cadastro').item.json.bloco }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "64c49dc0-02b8-4dfc-b78f-8a315b8d1205",
+      "name": "INSERT Morador",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2928,
+        5824
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evolution.automacaopme.com.br/message/sendText/{{ $('Lógica Cadastro').item.json.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "720C1736902E-49CB-9666-33787B6209FE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Lógica Cadastro').item.json.from }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $('Lógica Cadastro').item.json.resp }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a8f16883-c4a3-4d82-bbb8-63e0ea74f746",
+      "name": "Enviar Cadastro",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3152,
+        5728
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json;\nconst t = (d.texto ?? '').trim();\nconst b = d.buttonId;\n\nlet rota = 'menu';\nif      (b === 'btn_encomendas'  || t === '1') rota = 'encomendas';\nelse if (b === 'btn_visitantes'  || t === '2') rota = 'visitantes';\nelse if (b === 'btn_ocorrencias' || t === '3') rota = 'ocorrencias';\nelse if (t.toUpperCase().startsWith('RETIREI'))  rota = 'retirada';\n\nreturn [{ json: { ...d, rota } }];"
+      },
+      "id": "6445ebfe-4a3f-4006-9bfe-aec1f802d09a",
+      "name": "Roteador",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2272,
+        5360
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.rota }}",
+                    "rightValue": "encomendas",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "encomendas"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.rota }}",
+                    "rightValue": "visitantes",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "visitantes"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.rota }}",
+                    "rightValue": "ocorrencias",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ocorrencias"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.rota }}",
+                    "rightValue": "retirada",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "retirada"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.rota }}",
+                    "rightValue": "menu",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "menu"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e8005d6f-bcf5-4429-814f-9ee282824c65",
+      "name": "Switch Rota",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        2496,
+        5360
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evolution.automacaopme.com.br/message/sendText/{{ $json.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "720C1736902E-49CB-9666-33787B6209FE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $json.from }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ '🏢 *Portaria Digital*\\n\\nOlá, *' + $json.moradorNome + '*! 👋\\nAp. ' + $json.moradorApto + ' - Bloco ' + $json.moradorBloco + '\\n\\nComo posso ajudar?\\n\\n1️⃣  📦 Minhas Encomendas\\n2️⃣  🚗 Autorizar Visitante\\n3️⃣  ⚠️ Registrar Ocorrência\\n\\n_Digite o número da opção desejada_' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e3a636da-96d9-44e4-829d-dc1715896ee2",
+      "name": "Enviar Menu",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2704,
+        5504
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://rcghqqwbwxbhrxjwutqu.supabase.co/rest/v1/encomendas?morador_id=eq.{{ $json.moradorId }}&status=eq.aguardando&select=id,descricao,data_recebimento&order=id.asc",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZ2hxcXdid3hiaHJ4and1dHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzQ4MDUsImV4cCI6MjA5NDI1MDgwNX0.82ydARjHLvcXN5mp9u3JawDFT6l4oKdJov_ng6-lgMM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZ2hxcXdid3hiaHJ4and1dHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzQ4MDUsImV4cCI6MjA5NDI1MDgwNX0.82ydARjHLvcXN5mp9u3JawDFT6l4oKdJov_ng6-lgMM"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "80fc1063-234b-4471-aae7-29b7fc3a5cb9",
+      "name": "GET Encomendas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2704,
+        5216
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.data ?? $input.first().json;\nlet lista = [];\ntry { lista = typeof raw === 'string' ? JSON.parse(raw) : (Array.isArray(raw) ? raw : []); } catch(e) { lista = []; }\nconst ctx = $('Roteador').item.json;\nconst from = ctx.from, instance = ctx.instance, nome = ctx.moradorNome;\nif (lista.length === 0) {\n  return [{ json: { from, instance, msg: `📭 *Sem encomendas*\\n\\nOlá, ${nome}! Não há encomendas aguardando retirada.\\n\\nAssim que chegar algo, avisamos! 😊` } }];\n}\nlet t = `📦 *Suas Encomendas* (${lista.length})\\n\\n`;\nlista.forEach((e, i) => {\n  const dt = e.data_recebimento ? new Date(e.data_recebimento).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '?';\n  t += `*${i+1}. ${e.descricao}*\\n   📅 ${dt}\\n\\n`;\n});\nt += `_Retire na portaria com documento. 🏢_\\n\\nPara confirmar retirada envie: *RETIREI 1*`;\nreturn [{ json: { from, instance, msg: t } }];"
+      },
+      "id": "84c728ae-9b7d-4df0-a0f6-e068ccf9fcea",
+      "name": "Formatar Encomendas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2928,
+        5216
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evolution.automacaopme.com.br/message/sendText/{{ $json.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "720C1736902E-49CB-9666-33787B6209FE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $json.from }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.msg  }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1fc59192-06a6-43ce-91b8-fe119c77059a",
+      "name": "Enviar Encomendas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3152,
+        5216
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evolution.automacaopme.com.br/message/sendText/{{ $json.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "720C1736902E-49CB-9666-33787B6209FE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $json.from }}"
+            },
+            {
+              "name": "text",
+              "value": "🚗 *Autorizar Visitante*\n\nEm breve disponível!\nPor enquanto ligue para a portaria. 😊"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f1532206-e1aa-46b0-83b9-d53b20f020ed",
+      "name": "Resp Visitantes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2704,
+        5376
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evolution.automacaopme.com.br/message/sendText/{{ $json.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "720C1736902E-49CB-9666-33787B6209FE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $json.from }}"
+            },
+            {
+              "name": "text",
+              "value": "⚠️ *Registrar Ocorrência*\n\nEm breve disponível!\nPor enquanto fale com o síndico. 😊"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7c120a5f-914a-46c4-b324-1c254d9b134c",
+      "name": "Resp Ocorrencias",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2704,
+        5648
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const ctx = $('Roteador').item.json;\nconst texto = (ctx.texto ?? '').trim();\nconst indice = parseInt(texto.toUpperCase().split(' ')[1] ?? '0', 10);\nif (isNaN(indice) || indice < 1) {\n  return [{ json: { from: ctx.from, instance: ctx.instance, moradorId: ctx.moradorId, moradorNome: ctx.moradorNome, indice: 0, erroFormato: true } }];\n}\nreturn [{ json: { from: ctx.from, instance: ctx.instance, moradorId: ctx.moradorId, moradorNome: ctx.moradorNome, indice, erroFormato: false } }];"
+      },
+      "id": "9ebdcdb9-b9c7-4d73-92f4-7144764e7547",
+      "name": "Parsear RETIREI",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2704,
+        5776
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "c3",
+              "leftValue": "={{ $json.erroFormato }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a5f4cab9-96d8-457f-a547-cd45a5ffd83f",
+      "name": "Formato válido?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2928,
+        5776
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evolution.automacaopme.com.br/message/sendText/{{ $json.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "720C1736902E-49CB-9666-33787B6209FE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $json.from }}"
+            },
+            {
+              "name": "text",
+              "value": "⚠️ Formato inválido.\nUse: *RETIREI 1*"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "818fe9e8-7a14-41d3-9c98-cf286b8163b3",
+      "name": "Erro Formato",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3152,
+        5888
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://rcghqqwbwxbhrxjwutqu.supabase.co/rest/v1/encomendas?morador_id=eq.{{ $json.moradorId }}&status=eq.aguardando&select=id,descricao&order=id.asc&limit=1&offset={{ $json.indice - 1 }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZ2hxcXdid3hiaHJ4and1dHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzQ4MDUsImV4cCI6MjA5NDI1MDgwNX0.82ydARjHLvcXN5mp9u3JawDFT6l4oKdJov_ng6-lgMM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZ2hxcXdid3hiaHJ4and1dHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzQ4MDUsImV4cCI6MjA5NDI1MDgwNX0.82ydARjHLvcXN5mp9u3JawDFT6l4oKdJov_ng6-lgMM"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "107d2fe0-662d-4110-94a8-2073bb1876fd",
+      "name": "GET Enc Retirada",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3152,
+        5728
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.data ?? $input.first().json;\nlet lista = [];\ntry { lista = typeof raw === 'string' ? JSON.parse(raw) : (Array.isArray(raw) ? raw : []); } catch(e) { lista = []; }\nconst ctx = $('Parsear RETIREI').item.json;\nif (lista.length === 0) {\n  return [{ json: { from: ctx.from, instance: ctx.instance, moradorNome: ctx.moradorNome, encId: null, encDesc: null, naoAchada: true } }];\n}\nreturn [{ json: { from: ctx.from, instance: ctx.instance, moradorNome: ctx.moradorNome, encId: lista[0].id, encDesc: lista[0].descricao, naoAchada: false } }];"
+      },
+      "id": "45ced72a-3b7f-4d07-9359-18271f3b0919",
+      "name": "Check Enc",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3376,
+        5728
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "c4",
+              "leftValue": "={{ $json.naoAchada }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d3c812a5-1146-4ff4-997b-7f78dc6b0e58",
+      "name": "Enc encontrada?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3584,
+        5728
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://rcghqqwbwxbhrxjwutqu.supabase.co/rest/v1/encomendas?id=eq.{{ $json.encId }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZ2hxcXdid3hiaHJ4and1dHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzQ4MDUsImV4cCI6MjA5NDI1MDgwNX0.82ydARjHLvcXN5mp9u3JawDFT6l4oKdJov_ng6-lgMM"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZ2hxcXdid3hiaHJ4and1dHF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzQ4MDUsImV4cCI6MjA5NDI1MDgwNX0.82ydARjHLvcXN5mp9u3JawDFT6l4oKdJov_ng6-lgMM"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "retirado"
+            },
+            {
+              "name": "retirada_em",
+              "value": "={{ new Date().toISOString() }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "70c69d71-735a-478d-b6cc-6ee6eb99e15c",
+      "name": "PATCH Retirada",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3808,
+        5648
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evolution.automacaopme.com.br/message/sendText/{{ $('Check Enc').item.json.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "720C1736902E-49CB-9666-33787B6209FE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Check Enc').item.json.from }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ '✅ *Retirada confirmada!*\\n\\n📦 ' + $('Check Enc').item.json.encDesc + '\\n\\nObrigado, ' + $('Check Enc').item.json.moradorNome + '! 😊' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a93c9eff-b8e5-40f2-9500-d848778b0cc7",
+      "name": "Confirmar Retirada",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4032,
+        5648
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evolution.automacaopme.com.br/message/sendText/{{ $json.instance }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "720C1736902E-49CB-9666-33787B6209FE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $json.from }}"
+            },
+            {
+              "name": "text",
+              "value": "❌ Encomenda não encontrada.\n\nEnvie *1* para ver suas encomendas."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7fa6d3db-e83a-43bb-9468-b25a49e4452c",
+      "name": "Enc Nao Encontrada",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3808,
+        5808
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond 200",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Parsear Mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsear Mensagem": {
+      "main": [
+        [
+          {
+            "node": "GET Morador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Morador": {
+      "main": [
+        [
+          {
+            "node": "GET Sessao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Sessao": {
+      "main": [
+        [
+          {
+            "node": "Consolidar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consolidar": {
+      "main": [
+        [
+          {
+            "node": "Morador existe?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Morador existe?": {
+      "main": [
+        [
+          {
+            "node": "Roteador",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Lógica Cadastro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lógica Cadastro": {
+      "main": [
+        [
+          {
+            "node": "DELETE Sessao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DELETE Sessao": {
+      "main": [
+        [
+          {
+            "node": "Cadastro OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cadastro OK?": {
+      "main": [
+        [
+          {
+            "node": "INSERT Sessao",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "INSERT Morador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "INSERT Sessao": {
+      "main": [
+        [
+          {
+            "node": "Enviar Cadastro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "INSERT Morador": {
+      "main": [
+        [
+          {
+            "node": "Enviar Cadastro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Roteador": {
+      "main": [
+        [
+          {
+            "node": "Switch Rota",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Rota": {
+      "main": [
+        [
+          {
+            "node": "GET Encomendas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resp Visitantes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resp Ocorrencias",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parsear RETIREI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Enviar Menu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Encomendas": {
+      "main": [
+        [
+          {
+            "node": "Formatar Encomendas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatar Encomendas": {
+      "main": [
+        [
+          {
+            "node": "Enviar Encomendas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsear RETIREI": {
+      "main": [
+        [
+          {
+            "node": "Formato válido?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formato válido?": {
+      "main": [
+        [
+          {
+            "node": "GET Enc Retirada",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Erro Formato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Enc Retirada": {
+      "main": [
+        [
+          {
+            "node": "Check Enc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Enc": {
+      "main": [
+        [
+          {
+            "node": "Enc encontrada?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enc encontrada?": {
+      "main": [
+        [
+          {
+            "node": "PATCH Retirada",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Enc Nao Encontrada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PATCH Retirada": {
+      "main": [
+        [
+          {
+            "node": "Confirmar Retirada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "3373a5fe-315e-48bb-a8dc-886c77dc6c94",
+  "meta": {
+    "instanceId": "dae3f5f4275d86df3c5e049fcd5237b1473d43f01f25c1b5bcb6457151767513"
+  },
+  "id": "IhAmE1cLH8TOs58i",
+  "tags": []
+}
